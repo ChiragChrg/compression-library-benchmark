@@ -211,9 +211,9 @@ function App() {
                   </tr>
                 ))
                 :
-                Array.from({ length: initialLibraryData.length }, (_, index) => (
-                  <tr key={index}>
-                    <td className="border border-white px-4 py-2">-</td>
+                initialLibraryData.map((lib) => (
+                  <tr key={lib.name}>
+                    <td className="border border-white px-4 py-2">{lib.name}</td>
                     <td className="border border-white px-4 py-2">-</td>
                     <td className="border border-white px-4 py-2">-</td>
                     <td className="border border-white px-4 py-2">-</td>
