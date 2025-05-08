@@ -165,7 +165,7 @@ function App() {
     <main className='relative flex flex-col w-full h-screen'>
       <header className='flex justify-between items-center w-full px-10 py-6 border-b border-white/50'>
         <h1 className='text-4xl font-bold'>Compression Library Comparison</h1>
-        <a href='https://github.com/ChiragChrg/' target='_blank' title='GitHub Repo'>
+        <a href='https://github.com/ChiragChrg/compression-library-comparison' target='_blank' title='GitHub Repo'>
           <img src={GithubIcon} alt="GitHub" className='w-10' />
         </a>
       </header>
