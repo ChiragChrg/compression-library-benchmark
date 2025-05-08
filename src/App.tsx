@@ -170,9 +170,9 @@ function App() {
         </a>
       </header>
 
-      <div className="w-full h-full  max-h-[90%] flex items-center justify-center gap-5 p-5">
+      <div className="w-full h-full max-h-[90%] flex items-center justify-center gap-8 p-5">
         {/* Table Comparison Section */}
-        <section className='w-full h-full max-w-[50%] flex flex-col justify-start items-center gap-10'>
+        <section className='w-full h-full max-w-[48%] flex flex-col justify-start items-center gap-10'>
           <div className="flex justify-between items-center w-full">
             <div className="flex gap-4">
               <button onClick={loadDefaultPayload} className='bg-slate-800 px-4 py-2 rounded cursor-pointer'>Load Default Payload (1MB)</button>
@@ -198,17 +198,31 @@ function App() {
               </tr>
             </thead>
             <tbody>
-              {benchmarkResults.map((lib) => (
-                <tr key={lib.name}>
-                  <td className="border border-white px-4 py-2">{lib.name}</td>
-                  <td className="border border-white px-4 py-2">{lib.originalSize}</td>
-                  <td className="border border-white px-4 py-2">{lib.compressedSize}</td>
-                  <td className="border border-white px-4 py-2">{lib.decompressedSize}</td>
-                  <td className="border border-white px-4 py-2">{lib.encodeTime} ms</td>
-                  <td className="border border-white px-4 py-2">{lib.decodeTime} ms</td>
-                  <td className="border border-white px-4 py-2">{lib.totalTime} ms</td>
-                </tr>
-              ))}
+              {benchmarkResults.length > 0 ?
+                benchmarkResults.map((lib) => (
+                  <tr key={lib.name}>
+                    <td className="border border-white px-4 py-2">{lib.name}</td>
+                    <td className="border border-white px-4 py-2">{lib.originalSize}</td>
+                    <td className="border border-white px-4 py-2">{lib.compressedSize}</td>
+                    <td className="border border-white px-4 py-2">{lib.decompressedSize}</td>
+                    <td className="border border-white px-4 py-2">{lib.encodeTime} ms</td>
+                    <td className="border border-white px-4 py-2">{lib.decodeTime} ms</td>
+                    <td className="border border-white px-4 py-2">{lib.totalTime} ms</td>
+                  </tr>
+                ))
+                :
+                Array.from({ length: initialLibraryData.length }, (_, index) => (
+                  <tr key={index}>
+                    <td className="border border-white px-4 py-2">-</td>
+                    <td className="border border-white px-4 py-2">-</td>
+                    <td className="border border-white px-4 py-2">-</td>
+                    <td className="border border-white px-4 py-2">-</td>
+                    <td className="border border-white px-4 py-2">-</td>
+                    <td className="border border-white px-4 py-2">-</td>
+                    <td className="border border-white px-4 py-2">-</td>
+                  </tr>
+                ))
+              }
             </tbody>
           </table>
         </section>
@@ -216,7 +230,7 @@ function App() {
         <div className="w-0.5 h-full bg-white/50"></div>
 
         {/* Payload Preview Section */}
-        <section className='w-full h-full max-w-[50%] flex flex-col justify-center items-center gap-10'>
+        <section className='w-full h-full max-w-[48%] flex flex-col justify-center items-center gap-10'>
           <div className="w-full flex justify-between items-center">
             <h2 className="text-2xl font-medium">Payload Preview</h2>
             <p>Payload Size: <strong>{getByteSizeKB(JSON.stringify(payload))}</strong></p>
