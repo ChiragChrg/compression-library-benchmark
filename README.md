@@ -1,54 +1,52 @@
-# React + TypeScript + Vite
+# Compression Library Comparison 🚀
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Compression Library Comparison** is a interactive web app to benchmark and compare popular JavaScript compression and serialization libraries. Instantly see how FFLATE, Pako, LZString, CBOR, and MessagePack stack up on speed and compression using either a built-in 1MB payload or your own files.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ✨ Features
 
-## Expanding the ESLint configuration
+- ⚡ **One-Click Benchmarking:**  
+  Instantly compare multiple libraries.
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- 📦 **Flexible Payloads:**  
+  Use the default 1MB JSON or upload your own (JSON, TXT, JS, TS, JSX, TSX).
 
-```js
-export default tseslint.config({
-  extends: [
-    // Remove ...tseslint.configs.recommended and replace with this
-    ...tseslint.configs.recommendedTypeChecked,
-    // Alternatively, use this for stricter rules
-    ...tseslint.configs.strictTypeChecked,
-    // Optionally, add this for stylistic rules
-    ...tseslint.configs.stylisticTypeChecked,
-  ],
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+- 📊 **Detailed Results Table:**  
+  View original, compressed, and decompressed sizes (KB), encode/decode times (ms), and total operation times-all side by side.
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+- 👀 **Live Payload Preview:**  
+  See your loaded payload and its size before benchmarking.
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
+---
 
-export default tseslint.config({
-  plugins: {
-    // Add the react-x and react-dom plugins
-    'react-x': reactX,
-    'react-dom': reactDom,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended typescript rules
-    ...reactX.configs['recommended-typescript'].rules,
-    ...reactDom.configs.recommended.rules,
-  },
-})
-```
+## 🏆 Libraries Compared
+
+| 🏷️ Library     | 🔎 Description                                |
+|----------------|-----------------------------------------------|
+| FFLATE         | Fast, efficient DEFLATE/GZIP                  |
+| Pako           | Popular zlib port for browsers                |
+| LZString       | Lightweight string compression                |
+| CBOR           | Concise Binary Object Representation          |
+| MessagePack    | Efficient binary serialization                |
+
+---
+
+## 🚀 Getting Started
+
+1. **Clone the repo:**
+   ```bash
+   git clone https://github.com/ChiragChrg/compression-library-comparison.git
+   cd compression-library-comparison
+   ```
+
+2. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+3. **Run the app:**
+   ```bash
+   npm run dev
+   ```
+   Open `http://localhost:5173` in your browser.
