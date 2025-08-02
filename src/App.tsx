@@ -137,12 +137,12 @@ function App() {
         results.push({
           name,
           link,
-          encodeTime: encodeTime.toFixed(2),
-          originalSize,
-          compressedSize,
-          decompressedSize,
-          decodeTime: decodeTime.toFixed(2),
-          totalTime: totalTime.toFixed(2),
+          encodeTime: encodeTime.toFixed(1),
+          originalSize: originalSize,
+          compressedSize: compressedSize,
+          decompressedSize: decompressedSize,
+          decodeTime: decodeTime.toFixed(1),
+          totalTime: totalTime.toFixed(1),
         });
       } catch (err) {
         console.error(`Error benchmarking ${name}:`, err);
@@ -251,7 +251,7 @@ function App() {
             <p>Payload Size: <strong>{getByteSizeKB(JSON.stringify(payload))}</strong></p>
           </div>
 
-          <div className="bg-slate-800 w-full h-full overflow-y-auto p-4 rounded">
+          <div className="bg-slate-900 w-full h-full overflow-y-auto p-4 rounded">
             <pre className="text-sm">
               {JSON.stringify(payload, null, 2)}
             </pre>

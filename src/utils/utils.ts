@@ -122,7 +122,7 @@ export const getByteSizeKB = (input: string | Uint8Array | object): string => {
     const sizeInKB = bytes.length / 1024;
     const sizeInMB = sizeInKB / 1024;
     if (sizeInMB >= 1) {
-        return `${sizeInMB.toFixed(2)} MB`;
+        return `${sizeInMB.toFixed(1)} MB`;
     }
-    return `${sizeInKB.toFixed(2)} KB`;
+    return `${sizeInKB.toFixed(1)} KB`;
 };
