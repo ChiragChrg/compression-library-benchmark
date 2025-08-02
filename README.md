@@ -1,6 +1,6 @@
 # Compression Library Benchmark 🚀
 
-**Compression Library Benchmark** is a interactive web app to benchmark and compare popular JavaScript compression and serialization libraries. Instantly see how FFLATE, Pako, LZString, CBOR, and MessagePack stack up on speed and compression using either a built-in 1MB payload or your own files.
+**Compression Library Benchmark** is an interactive web app to benchmark and compare popular JavaScript compression and serialization libraries. Instantly see how FFLATE, Pako, LZString, CBOR, and MessagePack stack up on speed and compression using either a built-in 1MB payload or your own files.
 
 ---
 
@@ -10,10 +10,10 @@
   Instantly compare multiple libraries.
 
 - 📦 **Flexible Payloads:**  
-  Use the default 1MB JSON or upload your own (JSON, TXT, JS, TS, JSX, TSX).
+  Use the default 1MB JSON or upload your own text file.
 
 - 📊 **Detailed Results Table:**  
-  View original, compressed, and decompressed sizes (KB), encode/decode times (ms), and total operation times-all side by side.
+  View original and compressed sizes (KB), encode/decode times (ms), total operation times, compression ratios, and size reduction—all side by side.
 
 - 👀 **Live Payload Preview:**  
   See your loaded payload and its size before benchmarking.
@@ -50,3 +50,36 @@
    npm run dev
    ```
    Open `http://localhost:5173` in your browser.
+
+---
+
+## 📂 Project Structure
+
+```
+.
+├── public/           # Static assets
+├── src/              # Source code
+│   ├── assets/       # Images and icons
+│   ├── utils/        # Utility functions
+│   ├── App.tsx       # Main app component
+│   └── main.tsx      # Entry point
+├── package.json      # Project metadata and scripts
+├── vite.config.ts    # Vite configuration
+└── README.md         # This file
+```
+
+---
+
+## 🤝 Contributing
+
+Contributions, issues, and feature requests are welcome!  
+Feel free to open an issue or submit a pull request.
+
+---
+
+## 📄 License
+
+This project is licensed under the [MIT License](LICENSE).  
+You are free to use, modify, and share this project, as long as you include the original copyright.
+
+© 2025 [ChiragChrg](https://github.com/ChiragChrg) — All rights reserved under MIT.
