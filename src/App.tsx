@@ -16,6 +16,7 @@ import {
 import { payloadContent } from './utils/payload';
 import GithubIcon from './assets/github.svg';
 
+// Initial library data for the comparison
 const initialLibraryData = [
   { name: 'FFLATE' },
   { name: 'Pako' },
@@ -26,6 +27,9 @@ const initialLibraryData = [
 
 type LibraryName = typeof initialLibraryData[number]['name'];
 
+/**
+ * Mapping of library names to their encode/decode functions.
+ */
 const libraryMap: Record<LibraryName, {
   encode: (data: object) => Uint8Array | Promise<Uint8Array>;
   decode: (data: Uint8Array) => object | Promise<object>;
@@ -164,8 +168,8 @@ function App() {
   return (
     <main className='relative flex flex-col w-full h-screen'>
       <header className='flex justify-between items-center w-full px-10 py-6 border-b border-white/50'>
-        <h1 className='text-4xl font-bold'>Compression Library Comparison</h1>
-        <a href='https://github.com/ChiragChrg/compression-library-comparison' target='_blank' title='GitHub Repo'>
+        <h1 className='text-4xl font-bold'>📊 Compression Library Benchmark</h1>
+        <a href='https://github.com/ChiragChrg/compression-library-benchmark' target='_blank' title='GitHub Repo'>
           <img src={GithubIcon} alt="GitHub" className='w-10' />
         </a>
       </header>

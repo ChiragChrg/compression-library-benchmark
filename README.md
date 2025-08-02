@@ -1,6 +1,6 @@
-# Compression Library Comparison 🚀
+# Compression Library Benchmark 🚀
 
-**Compression Library Comparison** is a interactive web app to benchmark and compare popular JavaScript compression and serialization libraries. Instantly see how FFLATE, Pako, LZString, CBOR, and MessagePack stack up on speed and compression using either a built-in 1MB payload or your own files.
+**Compression Library Benchmark** is a interactive web app to benchmark and compare popular JavaScript compression and serialization libraries. Instantly see how FFLATE, Pako, LZString, CBOR, and MessagePack stack up on speed and compression using either a built-in 1MB payload or your own files.
 
 ---
 
@@ -36,8 +36,8 @@
 
 1. **Clone the repo:**
    ```bash
-   git clone https://github.com/ChiragChrg/compression-library-comparison.git
-   cd compression-library-comparison
+   git clone https://github.com/ChiragChrg/compression-library-benchmark.git
+   cd compression-library-benchmark
    ```
 
 2. **Install dependencies:**
