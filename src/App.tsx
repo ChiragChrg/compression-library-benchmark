@@ -7,11 +7,13 @@ import {
   cborDecode,
   msgpackEncode,
   msgpackDecode,
-  getByteSizeKB,
+  getSizeInKB,
   lzStringEncode,
   lzStringDecode,
   fflateEncode,
   fflateDecode,
+  calculateCompressionRatio,
+  getFormattedSize,
 } from './utils/utils';
 import { payloadContent } from './utils/payload';
 import GithubIcon from './assets/github.svg';
@@ -21,6 +23,8 @@ type TBestScore = {
   encodeTime: number;
   decodeTime: number;
   totalTime: number;
+  compressionRatio: number;
+  sizeReduction: number;
 }
 
 type TBenchmarkResult = {
@@ -28,10 +32,11 @@ type TBenchmarkResult = {
   link?: string;
   originalSize: string;
   compressedSize: string;
-  decompressedSize: string;
   encodeTime: number;
   decodeTime: number;
   totalTime: number;
+  compressionRatio: number;
+  sizeReduction: number;
 }
 
 // Initial library data for the comparison
@@ -89,8 +94,10 @@ function App() {
   // Upload custom payload
   const uploadCustomPayload = useCallback(() => {
     const fileInput = document.createElement('input');
+
     fileInput.type = 'file';
-    fileInput.accept = '.json, .txt, .js, .ts, .jsx, .tsx';
+    fileInput.accept = ".txt,.json,.csv,.log,.md,.js,.ts,.jsx,.tsx,.html,.xml,.yml,.yaml,.ini,.conf,.css,.scss,.less,.toml,.rtf,.bat,.sh,.py,.java,.c,.cpp,.h,.hpp,.php,.rb,.pl,.go,.swift,.rs,.dart,.sql,.ps1,.properties,.cfg,.env,.tex,.adoc,.textile,.rst,.mak,.makefile";
+
     fileInput.onchange = async (event) => {
       const target = event.target as HTMLInputElement;
       if (target.files && target.files.length > 0) {
@@ -114,6 +121,7 @@ function App() {
         reader.readAsText(file);
       }
     };
+
     fileInput.click();
   }, []);
 
@@ -131,30 +139,36 @@ function App() {
       const { encode, decode } = libraryMap[name];
 
       try {
+        // Measure Encoding time
         const startEncode = performance.now();
-
         const encoded = await encode(payload);
         const encodeTime = performance.now() - startEncode;
 
+        // Measure Decoding time
         const startDecode = performance.now();
-        const decoded = await decode(encoded);
+        await decode(encoded);
         const decodeTime = performance.now() - startDecode;
 
-        const originalSize = getByteSizeKB(payload);
-        const compressedSize = getByteSizeKB(encoded);
-        const decompressedSize = getByteSizeKB(decoded);
-
         const totalTime = encodeTime + decodeTime;
+
+        // Calculate sizes
+        const originalSize = getSizeInKB(payload);
+        const compressedSize = getSizeInKB(encoded);
+
+        // Calculate compression ratio and size reduction
+        const compressionRatio = calculateCompressionRatio(payload, compressedSize);
+        const sizeReduction = (1 - (compressedSize / originalSize)) * 100;
 
         results.push({
           name,
           link,
-          originalSize: originalSize,
-          compressedSize: compressedSize,
-          decompressedSize: decompressedSize,
+          originalSize: getFormattedSize(originalSize),
+          compressedSize: getFormattedSize(compressedSize),
           encodeTime: encodeTime,
           decodeTime: decodeTime,
           totalTime: totalTime,
+          compressionRatio: compressionRatio,
+          sizeReduction: sizeReduction
         });
       } catch (err) {
         console.error(`Error benchmarking ${name}:`, err);
@@ -163,10 +177,11 @@ function App() {
           link,
           originalSize: "0 KB",
           compressedSize: "0 KB",
-          decompressedSize: "0 KB",
           encodeTime: 0,
           decodeTime: 0,
           totalTime: 0,
+          compressionRatio: 0,
+          sizeReduction: 0,
         });
       }
     }
@@ -178,12 +193,16 @@ function App() {
         encodeTime: current.encodeTime < best.encodeTime ? current.encodeTime : best.encodeTime,
         decodeTime: current.decodeTime < best.decodeTime ? current.decodeTime : best.decodeTime,
         totalTime: current.totalTime < best.totalTime ? current.totalTime : best.totalTime,
+        compressionRatio: current.compressionRatio > best.compressionRatio ? current.compressionRatio : best.compressionRatio,
+        sizeReduction: current.sizeReduction > best.sizeReduction ? current.sizeReduction : best.sizeReduction
       };
     }, {
       compressedSize: 'Infinity',
       encodeTime: Infinity,
       decodeTime: Infinity,
       totalTime: Infinity,
+      compressionRatio: 0,
+      sizeReduction: 0,
     });
 
     setBestScore(newBestScore);
@@ -214,7 +233,7 @@ function App() {
 
       <div className="w-full h-full max-h-[90%] flex items-center justify-center gap-8 p-5">
         {/* Table Comparison Section */}
-        <section className='w-full h-full max-w-[48%] flex flex-col justify-start items-center gap-10'>
+        <section className='w-full h-full max-w-[70%] flex flex-col justify-start items-center gap-10'>
           <div className="flex justify-between items-center w-full">
             <div className="flex gap-4">
               <button onClick={loadDefaultPayload} className='bg-blue-900 px-4 py-2 rounded cursor-pointer'>📥 Load Default Payload (1MB)</button>
@@ -230,23 +249,26 @@ function App() {
           <table className='w-full'>
             <thead>
               <tr>
-                <th className="border border-white px-4 py-2">Library</th>
-                <th className="border border-white px-4 py-2">Original Size</th>
-                <th className="border border-white px-4 py-2">Compressed Size</th>
-                <th className="border border-white px-4 py-2">Decompressed Size</th>
-                <th className="border border-white px-4 py-2">Encode Time</th>
-                <th className="border border-white px-4 py-2">Decode Time</th>
-                <th className="border border-white px-4 py-2 bg-blue-950/50">Total Time</th>
+                <th className="border border-white px-4 py-2 bg-slate-900">Library</th>
+                <th className="border border-white px-4 py-2 bg-slate-900">Original Size</th>
+                <th className="border border-white px-4 py-2 bg-slate-900">Compressed Size</th>
+                <th className="border border-white px-4 py-2 bg-slate-900">Encode Time</th>
+                <th className="border border-white px-4 py-2 bg-slate-900">Decode Time</th>
+                <th className="border border-white px-4 py-2 bg-slate-900">Total Time</th>
+                <th className="border border-white px-4 py-2 bg-slate-900">Compression Ratio</th>
+                <th className="border border-white px-4 py-2 bg-slate-900">Size Reduction</th>
               </tr>
             </thead>
             <tbody>
               {benchmarkResults.length > 0 ?
                 benchmarkResults.map((lib) => {
                   const isBest = {
-                    compressedSize: bestScore?.compressedSize === lib.compressedSize,
                     encodeTime: bestScore?.encodeTime === lib.encodeTime,
                     decodeTime: bestScore?.decodeTime === lib.decodeTime,
                     totalTime: bestScore?.totalTime === lib.totalTime,
+                    compressedSize: bestScore?.compressedSize === lib.compressedSize,
+                    compressionRatio: bestScore?.compressionRatio === lib.compressionRatio,
+                    sizeReduction: bestScore?.sizeReduction === lib.sizeReduction,
                   }
 
                   return (
@@ -256,25 +278,39 @@ function App() {
                           {lib.name}
                         </a>
                       </td>
-                      <td className="border border-white px-4 py-2">{lib.originalSize}</td>
+                      <td className="border border-white px-4 py-2">
+                        {lib.originalSize}
+                      </td>
                       <td
                         style={isBest.compressedSize ? bestScoreStyle : {}}
-                        className="border border-white px-4 py-2">{lib.compressedSize}</td>
-                      <td
-                        style={lib.decompressedSize !== lib.originalSize ? {
-                          color: '#f59e0b',
-                          fontWeight: 'bold',
-                        } : {}}
-                        className="border border-white px-4 py-2">{lib.decompressedSize}</td>
+                        className="border border-white px-4 py-2">
+                        {lib.compressedSize}
+                      </td>
                       <td
                         style={isBest.encodeTime ? bestScoreStyle : {}}
-                        className="border border-white px-4 py-2">{lib.encodeTime.toFixed(1)} ms</td>
+                        className="border border-white px-4 py-2">
+                        {lib.encodeTime.toFixed(1)} ms
+                      </td>
                       <td
                         style={isBest.decodeTime ? bestScoreStyle : {}}
-                        className="border border-white px-4 py-2">{lib.decodeTime.toFixed(1)} ms</td>
+                        className="border border-white px-4 py-2">
+                        {lib.decodeTime.toFixed(1)} ms
+                      </td>
                       <td
                         style={isBest.totalTime ? bestScoreStyle : {}}
-                        className="border border-white px-4 py-2 bg-blue-950/50">{lib.totalTime.toFixed(1)} ms</td>
+                        className="border border-white px-4 py-2">
+                        {lib.totalTime.toFixed(1)} ms
+                      </td>
+                      <td
+                        style={isBest.compressionRatio ? bestScoreStyle : {}}
+                        className="border border-white px-4 py-2">
+                        {lib.compressionRatio.toFixed(2)} : 1
+                      </td>
+                      <td
+                        style={isBest.sizeReduction ? bestScoreStyle : {}}
+                        className="border border-white px-4 py-2">
+                        {lib.sizeReduction.toFixed(1)} %
+                      </td>
                     </tr>
                   )
                 })
@@ -291,7 +327,8 @@ function App() {
                     <td className="border border-white px-4 py-2">-</td>
                     <td className="border border-white px-4 py-2">-</td>
                     <td className="border border-white px-4 py-2">-</td>
-                    <td className="border border-white px-4 py-2 bg-blue-950/50">-</td>
+                    <td className="border border-white px-4 py-2">-</td>
+                    <td className="border border-white px-4 py-2">-</td>
                   </tr>
                 ))
               }
@@ -302,10 +339,10 @@ function App() {
         <div className="w-0.5 h-full bg-white/50"></div>
 
         {/* Payload Preview Section */}
-        <section className='w-full h-full max-w-[48%] flex flex-col justify-center items-center gap-10'>
+        <section className='w-full h-full max-w-[30%] flex flex-col justify-center items-center gap-10'>
           <div className="w-full flex justify-between items-center">
             <h2 className="text-2xl font-medium">Payload Preview</h2>
-            <p>Payload Size: <strong>{getByteSizeKB(JSON.stringify(payload))}</strong></p>
+            <p>Payload Size: <strong>{getFormattedSize(getSizeInKB(JSON.stringify(payload)))}</strong></p>
           </div>
 
           <div className="bg-slate-900 w-full h-full overflow-y-auto p-4 rounded">
