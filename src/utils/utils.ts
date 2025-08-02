@@ -4,109 +4,126 @@ import { encode as encodeMsgPack, decode as decodeMsgPack } from "messagepack"
 import { compressToUint8Array, decompressFromUint8Array } from "lz-string"
 import { gunzipSync, gzipSync } from "fflate"
 
-// PAKO
+// #region PAKO
 /**
  * Compresses a string using Pako's gzip method.
+ * @param payload - The object to compress.
+ * @returns A Uint8Array containing the compressed data.
  */
 export function pakoEncode(payload: object): Uint8Array {
     const compressed = gzip(JSON.stringify(payload));
-    console.log("Pako Compress", { payload, compressed });
     return compressed;
 }
 
 /**
  * Decompresses a string using Pako's ungzip method.
+ * @param data - The Uint8Array containing the compressed data.
+ * @returns The decompressed object.
  */
 export function pakoDecode(data: Uint8Array): object {
     const decompressedStr = ungzip(data, { to: "string" });
     const parsed = JSON.parse(decompressedStr);
-    console.log("Pako Decompress", { data, decompressedStr, parsed });
     return parsed;
 }
 
-// CBOR
+// #region CBOR
 /**
  * Encodes a payload using CBOR.
+ * @param payload - The object to encode.
+ * @returns A Uint8Array containing the encoded data.
  */
 export function cborEncode(payload: object): Uint8Array {
     const encoded = encodeCbor(payload);
-    console.log("CBOR Encode", { payload, encoded });
     return encoded;
 }
 
 /**
  * Decodes a payload using CBOR.
+ * @param data - The Uint8Array containing the encoded data.
+ * @returns The decoded object.
  */
 export function cborDecode(data: Uint8Array): object {
     const decoded = decodeCbor(data) as object;
-    console.log("CBOR Decode", { data, decoded });
     return decoded;
 }
 
-// MESSAGEPACK
+// #region MESSAGEPACK
 /**
  * Encodes a payload using MessagePack.
+ * @param payload - The object to encode.
+ * @returns A Uint8Array containing the encoded data.
  */
 export function msgpackEncode(payload: object): Uint8Array {
     const encoded = encodeMsgPack(payload);
-    console.log("MessagePack Encode", { payload, encoded });
     return encoded;
 }
 
 /**
  * Decodes a payload using MessagePack.
+ * @param data - The Uint8Array containing the encoded data.
+ * @returns The decoded object.
  */
 export function msgpackDecode(data: Uint8Array): object {
-    const decoded = decodeMsgPack(data) as object;
-    console.log("MessagePack Decode", { data, decoded });
+    const safeData = new Uint8Array(data);
+    const decoded = decodeMsgPack(safeData) as object;
     return decoded;
 }
 
-// LZ-STRING
+// #region LZ-STRING
 /**
  * Compresses a string using LZ-String.
+ * @param payload - The object to compress.
+ * @returns A Uint8Array containing the compressed data.
  */
 export function lzStringEncode(payload: object): Uint8Array {
     const str = JSON.stringify(payload);
     const compressed = compressToUint8Array(str);
-    console.log("LZ-String Compress", { payload, str, compressed });
     return compressed;
 }
 
 /**
  * Decompresses a string using LZ-String.
+ * @param data - The Uint8Array containing the compressed data.
+ * @returns The decompressed object.
  */
 export function lzStringDecode(data: Uint8Array): object {
     const decompressedStr = decompressFromUint8Array(data);
     const parsed = JSON.parse(decompressedStr || '{}');
-    console.log("LZ-String Decompress", { data, decompressedStr, parsed });
     return parsed;
 }
 
-// FFLATE
+// #region FFLATE
 /**
  * Compresses a string using FFLate's gzip.
+ * @param payload - The object to compress.
+ * @returns A Uint8Array containing the compressed data.
  */
 export function fflateEncode(payload: object): Uint8Array {
     const str = JSON.stringify(payload);
     const compressed = gzipSync(new TextEncoder().encode(str));
-    console.log("FFLate Compress", { payload, str, compressed });
     return compressed;
 }
 
 /**
  * Decompresses a string using FFLate's gunzip.
+ * @param data - The Uint8Array containing the compressed data.
+ * @returns The decompressed object.
  */
 export function fflateDecode(data: Uint8Array): object {
     const decompressed = gunzipSync(data);
     const decompressedStr = new TextDecoder().decode(decompressed);
     const parsed = JSON.parse(decompressedStr);
-    console.log("FFLate Decompress", { data, decompressedStr, parsed });
     return parsed;
 }
 
-// Utils
-export const getByteSizeKB = (input: string | Uint8Array | object): string => {
+
+//#region Utility Functions
+/**
+ * Calculates the byte size of a given input and formats it as KB or MB.
+ * @param input - The input to calculate size for, can be a string, Uint8Array, or object.
+ * @returns A string representing the size in KB or MB.
+ */
+export const getSizeInKB = (input: string | Uint8Array | object): number => {
     let bytes: Uint8Array;
 
     if (typeof input === 'string') {
@@ -120,9 +137,43 @@ export const getByteSizeKB = (input: string | Uint8Array | object): string => {
 
     // Display size in KB or MB
     const sizeInKB = bytes.length / 1024;
-    const sizeInMB = sizeInKB / 1024;
-    if (sizeInMB >= 1) {
-        return `${sizeInMB.toFixed(2)} MB`;
-    }
-    return `${sizeInKB.toFixed(2)} KB`;
+
+    return sizeInKB;
 };
+
+/**
+ * Formats a size in KB to a human-readable string.
+ * @param sizeInKB - The size in KB to format.
+ * @returns A string representing the formatted size.
+ */
+export const getFormattedSize = (sizeInKB: number): string => {
+    if (sizeInKB < 1024) {
+        return `${sizeInKB.toFixed(1)} KB`;
+    } else {
+        const sizeInMB = sizeInKB / 1024;
+        return `${sizeInMB.toFixed(1)} MB`;
+    }
+}
+
+/**
+ * Calculates the compression ratio of a payload given its compressed size in KB.
+ * @param payload - The original payload, can be a string, Uint8Array, or object.
+ * @param compressedSizeInKB - The size of the compressed payload in KB.
+ * @return The compression ratio as a number.
+ */
+export const calculateCompressionRatio = (payload: string | Uint8Array | object, compressedSizeInKB: number): number => {
+    let originalSizeInKB: number;
+    if (typeof payload === 'string') {
+        originalSizeInKB = new TextEncoder().encode(payload).length / 1024;
+    }
+    else if (payload instanceof Uint8Array) {
+        originalSizeInKB = payload.length / 1024;
+    } else {
+        originalSizeInKB = new TextEncoder().encode(JSON.stringify(payload)).length / 1024;
+    }
+
+    if (compressedSizeInKB === 0) {
+        return 0;
+    }
+    return originalSizeInKB / compressedSizeInKB;
+}
