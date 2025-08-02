@@ -18,11 +18,11 @@ import GithubIcon from './assets/github.svg';
 
 // Initial library data for the comparison
 const initialLibraryData = [
-  { name: 'FFLATE' },
-  { name: 'Pako' },
-  { name: 'LZString' },
-  { name: 'CBOR' },
-  { name: 'MessagePack' },
+  { name: 'FFLATE', link: 'https://www.npmjs.com/package/fflate' },
+  { name: 'Pako', link: 'https://www.npmjs.com/package/pako' },
+  { name: 'LZString', link: 'https://www.npmjs.com/package/lz-string' },
+  { name: 'CBOR', link: 'https://www.npmjs.com/package/cbor2' },
+  { name: 'MessagePack', link: 'https://www.npmjs.com/package/messagepack' },
 ] as const;
 
 type LibraryName = typeof initialLibraryData[number]['name'];
@@ -60,6 +60,7 @@ function App() {
   const [payload, setPayload] = useState<object | undefined>(undefined);
   const [benchmarkResults, setBenchmarkResults] = useState<{
     name: string;
+    link?: string;
     originalSize: string;
     compressedSize: string;
     decompressedSize: string;
@@ -114,7 +115,7 @@ function App() {
 
     const results = [];
 
-    for (const { name } of initialLibraryData) {
+    for (const { name, link } of initialLibraryData) {
       const { encode, decode } = libraryMap[name];
 
       try {
@@ -135,6 +136,7 @@ function App() {
 
         results.push({
           name,
+          link,
           encodeTime: encodeTime.toFixed(2),
           originalSize,
           compressedSize,
@@ -146,6 +148,7 @@ function App() {
         console.error(`Error benchmarking ${name}:`, err);
         results.push({
           name,
+          link,
           encodeTime: "0 ms",
           originalSize: "0 KB",
           compressedSize: "0 KB",
@@ -179,13 +182,13 @@ function App() {
         <section className='w-full h-full max-w-[48%] flex flex-col justify-start items-center gap-10'>
           <div className="flex justify-between items-center w-full">
             <div className="flex gap-4">
-              <button onClick={loadDefaultPayload} className='bg-slate-800 px-4 py-2 rounded cursor-pointer'>Load Default Payload (1MB)</button>
-              <button onClick={uploadCustomPayload} className='bg-slate-800 px-4 py-2 rounded cursor-pointer'>Upload Custom Payload</button>
+              <button onClick={loadDefaultPayload} className='bg-blue-900 px-4 py-2 rounded cursor-pointer'>📥 Load Default Payload (1MB)</button>
+              <button onClick={uploadCustomPayload} className='bg-yellow-900 px-4 py-2 rounded cursor-pointer'>📂 Upload Custom Payload</button>
             </div>
 
             <div className="flex gap-4">
-              <button onClick={startComparison} className='bg-slate-800 px-4 py-2 rounded cursor-pointer'>Start Comparison</button>
-              <button onClick={resetPayload} className='bg-slate-800 px-4 py-2 rounded cursor-pointer'>Reset</button>
+              <button onClick={startComparison} className='bg-green-800 px-4 py-2 rounded cursor-pointer'>🚀 Start Comparison</button>
+              <button onClick={resetPayload} className='bg-gray-700 px-4 py-2 rounded cursor-pointer'>🔃 Reset</button>
             </div>
           </div>
 
@@ -205,7 +208,11 @@ function App() {
               {benchmarkResults.length > 0 ?
                 benchmarkResults.map((lib) => (
                   <tr key={lib.name}>
-                    <td className="border border-white px-4 py-2">{lib.name}</td>
+                    <td className="border border-white px-4 py-2">
+                      <a href={lib.link} target="_blank" rel="noopener noreferrer" className="text-blue-400 font-bold hover:underline">
+                        {lib.name}
+                      </a>
+                    </td>
                     <td className="border border-white px-4 py-2">{lib.originalSize}</td>
                     <td className="border border-white px-4 py-2">{lib.compressedSize}</td>
                     <td className="border border-white px-4 py-2">{lib.decompressedSize}</td>
@@ -217,7 +224,11 @@ function App() {
                 :
                 initialLibraryData.map((lib) => (
                   <tr key={lib.name}>
-                    <td className="border border-white px-4 py-2">{lib.name}</td>
+                    <td className="border border-white px-4 py-2">
+                      <a href={lib.link} target="_blank" rel="noopener noreferrer" className="text-blue-400 font-bold hover:underline">
+                        {lib.name}
+                      </a>
+                    </td>
                     <td className="border border-white px-4 py-2">-</td>
                     <td className="border border-white px-4 py-2">-</td>
                     <td className="border border-white px-4 py-2">-</td>
