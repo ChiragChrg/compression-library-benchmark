@@ -1,5 +1,4 @@
 import { useCallback, useState } from 'react';
-import './App.css';
 import {
   pakoEncode,
   pakoDecode,
@@ -7,16 +6,19 @@ import {
   cborDecode,
   msgpackEncode,
   msgpackDecode,
-  getSizeInKB,
   lzStringEncode,
   lzStringDecode,
   fflateEncode,
   fflateDecode,
+} from './utils/libraries';
+import {
+  getSizeInKB,
   calculateCompressionRatio,
-  getFormattedSize,
+  getFormattedSize
 } from './utils/utils';
 import { payloadContent } from './utils/payload';
 import GithubIcon from './assets/github.svg';
+import './App.css';
 
 type TBestScore = {
   compressedSize: string;
@@ -98,7 +100,7 @@ function App() {
     fileInput.type = 'file';
     fileInput.accept = ".txt,.json,.csv,.log,.md,.js,.ts,.jsx,.tsx,.html,.xml,.yml,.yaml,.ini,.conf,.css,.scss,.less,.toml,.rtf,.bat,.sh,.py,.java,.c,.cpp,.h,.hpp,.php,.rb,.pl,.go,.swift,.rs,.dart,.sql,.ps1,.properties,.cfg,.env,.tex,.adoc,.textile,.rst,.mak,.makefile";
 
-    fileInput.onchange = async (event) => {
+    fileInput.onchange = (event) => {
       const target = event.target as HTMLInputElement;
       if (target.files && target.files.length > 0) {
         const file = target.files[0];
@@ -108,7 +110,7 @@ function App() {
           try {
             if (file.name.endsWith('.json')) {
               // Parse as JSON
-              const parsedPayload = JSON.parse(content);
+              const parsedPayload = JSON.parse(content) as object;
               setPayload(parsedPayload);
             } else {
               // Wrap the content in object
@@ -241,7 +243,7 @@ function App() {
             </div>
 
             <div className="flex gap-4">
-              <button onClick={startComparison} className='bg-green-800 px-4 py-2 rounded cursor-pointer'>🚀 Start Comparison</button>
+              <button onClick={() => { void startComparison(); }} className='bg-green-800 px-4 py-2 rounded cursor-pointer'>🚀 Start Comparison</button>
               <button onClick={resetPayload} className='bg-gray-700 px-4 py-2 rounded cursor-pointer'>🔃 Reset</button>
             </div>
           </div>
