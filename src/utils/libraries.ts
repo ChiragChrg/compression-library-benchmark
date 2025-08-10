@@ -4,6 +4,24 @@ import { encode as encodeMsgPack, decode as decodeMsgPack } from "messagepack"
 import { compressToUint8Array, decompressFromUint8Array } from "lz-string"
 import { gunzipSync, gzipSync } from "fflate"
 
+// #region Compression Libraries
+/**
+ * List of compression libraries with their names and links.
+ * This is used to display the libraries in the UI and for benchmarking.
+ */
+export const compressionLibraries = [
+    { name: 'FFLATE', link: 'https://www.npmjs.com/package/fflate' },
+    { name: 'Pako', link: 'https://www.npmjs.com/package/pako' },
+    { name: 'LZString', link: 'https://www.npmjs.com/package/lz-string' },
+    { name: 'CBOR', link: 'https://www.npmjs.com/package/cbor2' },
+    { name: 'MessagePack', link: 'https://www.npmjs.com/package/messagepack' },
+] as const;
+
+// Library name type for Mapping
+export type TLibraryName = typeof compressionLibraries[number]['name'];
+// #endregion Compression Libraries
+
+
 // #region PAKO
 /**
  * Compresses a string using Pako's gzip method.

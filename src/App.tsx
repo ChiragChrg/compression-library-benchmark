@@ -1,4 +1,9 @@
 import { useCallback, useState } from 'react';
+import { payloadContent } from './utils/payload';
+import GithubIcon from './assets/github.svg';
+import './App.css';
+
+// Import compression libraries
 import {
   pakoEncode,
   pakoDecode,
@@ -10,16 +15,21 @@ import {
   lzStringDecode,
   fflateEncode,
   fflateDecode,
+
+  type TLibraryName,
+  compressionLibraries
 } from './utils/libraries';
+
+// Import utility functions
 import {
   getSizeInKB,
   calculateCompressionRatio,
   getFormattedSize
 } from './utils/utils';
-import { payloadContent } from './utils/payload';
-import GithubIcon from './assets/github.svg';
-import './App.css';
 
+
+
+// #region Types
 type TBestScore = {
   compressedSize: string;
   encodeTime: number;
@@ -41,24 +51,18 @@ type TBenchmarkResult = {
   sizeReduction: number;
 }
 
-// Initial library data for the comparison
-const initialLibraryData = [
-  { name: 'FFLATE', link: 'https://www.npmjs.com/package/fflate' },
-  { name: 'Pako', link: 'https://www.npmjs.com/package/pako' },
-  { name: 'LZString', link: 'https://www.npmjs.com/package/lz-string' },
-  { name: 'CBOR', link: 'https://www.npmjs.com/package/cbor2' },
-  { name: 'MessagePack', link: 'https://www.npmjs.com/package/messagepack' },
-] as const;
+type TLibrary = Record<TLibraryName, {
+  encode: (data: object) => Uint8Array | Promise<Uint8Array>;
+  decode: (data: Uint8Array) => object | Promise<object>;
+}>;
+// #endregion Types
 
-type LibraryName = typeof initialLibraryData[number]['name'];
 
+//#region Setup Libraries
 /**
  * Mapping of library names to their encode/decode functions.
  */
-const libraryMap: Record<LibraryName, {
-  encode: (data: object) => Uint8Array | Promise<Uint8Array>;
-  decode: (data: Uint8Array) => object | Promise<object>;
-}> = {
+const libraryMap: TLibrary = {
   FFLATE: {
     encode: fflateEncode,
     decode: fflateDecode
@@ -80,7 +84,13 @@ const libraryMap: Record<LibraryName, {
     decode: msgpackDecode,
   },
 };
+//#endregion Setup Libraries
 
+
+/**
+ * Main App component.
+ * Handles state management, user interactions, and rendering of the UI.
+ */
 function App() {
   //#region State Management
   const [payload, setPayload] = useState<object | undefined>(undefined);
@@ -130,7 +140,7 @@ function App() {
 
 
   // Start comparison
-  const startComparison = useCallback(async () => {
+  const startComparison = async () => {
     if (!payload) {
       alert('Please load a payload first.');
       return;
@@ -139,7 +149,7 @@ function App() {
 
     const results = [];
 
-    for (const { name, link } of initialLibraryData) {
+    for (const { name, link } of compressionLibraries) {
       const { encode, decode } = libraryMap[name];
 
       try {
@@ -212,7 +222,7 @@ function App() {
     setIsLoading(false);
     setBestScore(newBestScore);
     setBenchmarkResults(results);
-  }, [payload]);
+  };
 
   // Reset payload
   const resetPayload = useCallback(() => {
@@ -328,7 +338,7 @@ function App() {
                   )
                 })
                 :
-                initialLibraryData.map((lib) => (
+                compressionLibraries.map((lib) => (
                   <tr key={lib.name}>
                     <td className="border border-white px-4 py-2">
                       <a href={lib.link} target="_blank" rel="noopener noreferrer" className="text-blue-400 font-bold hover:underline">
