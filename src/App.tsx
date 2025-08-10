@@ -147,6 +147,9 @@ function App() {
     }
     setIsLoading(true);
 
+    // Add a small delay to simulate loading
+    await new Promise(resolve => setTimeout(resolve, 50));
+
     const results = [];
 
     for (const { name, link } of compressionLibraries) {
