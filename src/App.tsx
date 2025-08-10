@@ -86,6 +86,7 @@ function App() {
   const [payload, setPayload] = useState<object | undefined>(undefined);
   const [bestScore, setBestScore] = useState<TBestScore | undefined>(undefined)
   const [benchmarkResults, setBenchmarkResults] = useState<TBenchmarkResult[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   //#region Handlers
   // Load default payload on mount
@@ -134,6 +135,7 @@ function App() {
       alert('Please load a payload first.');
       return;
     }
+    setIsLoading(true);
 
     const results = [];
 
@@ -207,6 +209,7 @@ function App() {
       sizeReduction: 0,
     });
 
+    setIsLoading(false);
     setBestScore(newBestScore);
     setBenchmarkResults(results);
   }, [payload]);
@@ -243,8 +246,16 @@ function App() {
             </div>
 
             <div className="flex gap-4">
-              <button onClick={() => { void startComparison(); }} className='bg-green-800 px-4 py-2 rounded cursor-pointer'>🚀 Start Comparison</button>
-              <button onClick={resetPayload} className='bg-gray-700 px-4 py-2 rounded cursor-pointer'>🔃 Reset</button>
+              <button
+                onClick={() => { void startComparison(); }}
+                disabled={isLoading || !payload}
+                className='bg-green-800 px-4 py-2 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'>
+                {isLoading ? '🔄 Benchmarking...' : '🚀 Start Benchmark'}
+              </button>
+              <button
+                onClick={resetPayload}
+                disabled={!payload}
+                className='bg-gray-700 px-4 py-2 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'>🔃 Reset</button>
             </div>
           </div>
 
