@@ -1,8 +1,21 @@
 {
-  "name": "encodedecode",
+  "name": "comression-library-benchmark",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
   "type": "module",
+  "description": "A benchmark for various compression libraries in a React application.",
+  "author": "ChiragChrg",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ChiragChrg/compression-library-benchmark.git"
+  },
+  "keywords": [
+    "compression",
+    "benchmark",
+    "react",
+    "library"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
