@@ -1,5 +1,9 @@
 import { useCallback, useState } from 'react';
+import { payloadContent } from './utils/payload';
+import GithubIcon from './assets/github.svg';
 import './App.css';
+
+// Import compression libraries
 import {
   pakoEncode,
   pakoDecode,
@@ -7,17 +11,25 @@ import {
   cborDecode,
   msgpackEncode,
   msgpackDecode,
-  getSizeInKB,
   lzStringEncode,
   lzStringDecode,
   fflateEncode,
   fflateDecode,
-  calculateCompressionRatio,
-  getFormattedSize,
-} from './utils/utils';
-import { payloadContent } from './utils/payload';
-import GithubIcon from './assets/github.svg';
 
+  type TLibraryName,
+  compressionLibraries
+} from './utils/libraries';
+
+// Import utility functions
+import {
+  getSizeInKB,
+  calculateCompressionRatio,
+  getFormattedSize
+} from './utils/utils';
+
+
+
+// #region Types
 type TBestScore = {
   compressedSize: string;
   encodeTime: number;
@@ -39,24 +51,18 @@ type TBenchmarkResult = {
   sizeReduction: number;
 }
 
-// Initial library data for the comparison
-const initialLibraryData = [
-  { name: 'FFLATE', link: 'https://www.npmjs.com/package/fflate' },
-  { name: 'Pako', link: 'https://www.npmjs.com/package/pako' },
-  { name: 'LZString', link: 'https://www.npmjs.com/package/lz-string' },
-  { name: 'CBOR', link: 'https://www.npmjs.com/package/cbor2' },
-  { name: 'MessagePack', link: 'https://www.npmjs.com/package/messagepack' },
-] as const;
+type TLibrary = Record<TLibraryName, {
+  encode: (data: object) => Uint8Array | Promise<Uint8Array>;
+  decode: (data: Uint8Array) => object | Promise<object>;
+}>;
+// #endregion Types
 
-type LibraryName = typeof initialLibraryData[number]['name'];
 
+//#region Setup Libraries
 /**
  * Mapping of library names to their encode/decode functions.
  */
-const libraryMap: Record<LibraryName, {
-  encode: (data: object) => Uint8Array | Promise<Uint8Array>;
-  decode: (data: Uint8Array) => object | Promise<object>;
-}> = {
+const libraryMap: TLibrary = {
   FFLATE: {
     encode: fflateEncode,
     decode: fflateDecode
@@ -78,12 +84,19 @@ const libraryMap: Record<LibraryName, {
     decode: msgpackDecode,
   },
 };
+//#endregion Setup Libraries
 
+
+/**
+ * Main App component.
+ * Handles state management, user interactions, and rendering of the UI.
+ */
 function App() {
   //#region State Management
   const [payload, setPayload] = useState<object | undefined>(undefined);
   const [bestScore, setBestScore] = useState<TBestScore | undefined>(undefined)
   const [benchmarkResults, setBenchmarkResults] = useState<TBenchmarkResult[]>([]);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
 
   //#region Handlers
   // Load default payload on mount
@@ -98,7 +111,7 @@ function App() {
     fileInput.type = 'file';
     fileInput.accept = ".txt,.json,.csv,.log,.md,.js,.ts,.jsx,.tsx,.html,.xml,.yml,.yaml,.ini,.conf,.css,.scss,.less,.toml,.rtf,.bat,.sh,.py,.java,.c,.cpp,.h,.hpp,.php,.rb,.pl,.go,.swift,.rs,.dart,.sql,.ps1,.properties,.cfg,.env,.tex,.adoc,.textile,.rst,.mak,.makefile";
 
-    fileInput.onchange = async (event) => {
+    fileInput.onchange = (event) => {
       const target = event.target as HTMLInputElement;
       if (target.files && target.files.length > 0) {
         const file = target.files[0];
@@ -108,7 +121,7 @@ function App() {
           try {
             if (file.name.endsWith('.json')) {
               // Parse as JSON
-              const parsedPayload = JSON.parse(content);
+              const parsedPayload = JSON.parse(content) as object;
               setPayload(parsedPayload);
             } else {
               // Wrap the content in object
@@ -127,15 +140,19 @@ function App() {
 
 
   // Start comparison
-  const startComparison = useCallback(async () => {
+  const startComparison = async () => {
     if (!payload) {
       alert('Please load a payload first.');
       return;
     }
+    setIsLoading(true);
+
+    // Add a small delay to simulate loading
+    await new Promise(resolve => setTimeout(resolve, 50));
 
     const results = [];
 
-    for (const { name, link } of initialLibraryData) {
+    for (const { name, link } of compressionLibraries) {
       const { encode, decode } = libraryMap[name];
 
       try {
@@ -205,9 +222,10 @@ function App() {
       sizeReduction: 0,
     });
 
+    setIsLoading(false);
     setBestScore(newBestScore);
     setBenchmarkResults(results);
-  }, [payload]);
+  };
 
   // Reset payload
   const resetPayload = useCallback(() => {
@@ -241,8 +259,16 @@ function App() {
             </div>
 
             <div className="flex gap-4">
-              <button onClick={startComparison} className='bg-green-800 px-4 py-2 rounded cursor-pointer'>🚀 Start Comparison</button>
-              <button onClick={resetPayload} className='bg-gray-700 px-4 py-2 rounded cursor-pointer'>🔃 Reset</button>
+              <button
+                onClick={() => { void startComparison(); }}
+                disabled={isLoading || !payload}
+                className='bg-green-800 px-4 py-2 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'>
+                {isLoading ? '🔄 Benchmarking...' : '🚀 Start Benchmark'}
+              </button>
+              <button
+                onClick={resetPayload}
+                disabled={!payload}
+                className='bg-gray-700 px-4 py-2 rounded cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed'>🔃 Reset</button>
             </div>
           </div>
 
@@ -315,7 +341,7 @@ function App() {
                   )
                 })
                 :
-                initialLibraryData.map((lib) => (
+                compressionLibraries.map((lib) => (
                   <tr key={lib.name}>
                     <td className="border border-white px-4 py-2">
                       <a href={lib.link} target="_blank" rel="noopener noreferrer" className="text-blue-400 font-bold hover:underline">
