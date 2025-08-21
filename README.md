@@ -73,7 +73,9 @@
 ## 🤝 Contributing
 
 Contributions, issues, and feature requests are welcome!  
-Feel free to open an issue or submit a pull request.
+Whether you want to add new compression libraries, fix bugs, or improve the user experience, feel free to open an issue or submit a pull request.
+
+**Want to add a new compression library?** Check out our detailed [Contributing Guide](CONTRIBUTING.md) for step-by-step instructions.
 
 ---
 
